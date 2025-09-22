@@ -1,0 +1,17 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: nexus-ecs-service
+  description: Nexus artifact service
+  namespace: default
+  annotations:
+    github.com/project-slug: ServerlessOpsIO/nexus-ecs-service
+spec:
+  type: container-service
+  lifecycle: production
+  owner: group:default/00gjdgxs1ur6lsu
+  system: system:default/versant
+  dependsOn:
+    - component:default/nexus-ecs-cluster
+    - resource:default/aws-441198202749

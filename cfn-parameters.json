@@ -15,5 +15,5 @@
   "ContainerPort": "8081","AlbRulePriority": "1",
   "AlbRulePath": "*",
   "VpcId": "/org/networking/VpcId",
-  "VpcSubnets": "/org/networking/VpcPublicSubnets"
+  "NexusAdminPassword": $secrets.NEXUS_ADMIN_PASSWORD
 }

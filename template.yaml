@@ -80,6 +80,10 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: Account subnets
 
+  NexusAdminPassword:
+    Type: String
+    Description: Nexus admin password
+    NoEcho: true
 
 Resources:
   PersistentStorageFs:
@@ -181,9 +185,9 @@ Resources:
           MountPoints:
             - SourceVolume: nexus-data
               ContainerPath: /nexus-data
-          #Environment:
-          #  - Name: VARIABLE
-          #    Value: !Ref Parameter
+          Environment:
+            - Name: NEXUS_SECURITY_INITIAL_PASSWORD
+              Value: !Ref NexusAdminPassword
           DockerLabels:
             com.datadoghq.tags.domain: !Ref Domain
             com.datadoghq.tags.system: !Ref System

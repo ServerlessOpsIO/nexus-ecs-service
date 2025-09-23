@@ -82,8 +82,71 @@ Parameters:
 
 
 Resources:
+  PersistentStorageFs:
+    Type: AWS::EFS::FileSystem
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties:
+      Encrypted: true
+
+  PersistentStorageAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties:
+      FileSystemId: !Ref PersistentStorageFs
+      PosixUser:
+        # the group and user id are what are used by the Nexus docker image
+        Gid: '200'
+        Uid: '200'
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: '200'
+          OwnerUid: '200'
+          Permissions: '775'
+        Path: /nexus-data
+
+  NexusMountTarget0:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref PersistentStorageFs
+      SubnetId: !Select [ 0, !Ref VpcSubnets ]
+      SecurityGroups:
+        - !Ref ClusterSecurityGroupId
+
+  NexusMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref PersistentStorageFs
+      SubnetId: !Select [ 1, !Ref VpcSubnets ]
+      SecurityGroups:
+        - !Ref ClusterSecurityGroupId
+
+  NexusMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref PersistentStorageFs
+      SubnetId: !Select [ 2, !Ref VpcSubnets ]
+      SecurityGroups:
+        - !Ref ClusterSecurityGroupId
+
+  NexusMountSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ClusterSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 2049
+      ToPort: 2049
+      SourceSecurityGroupId: !Ref ClusterSecurityGroupId
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
+    # NOTE: This exists because propegating DNS entires for EFS mounts can be slow and result
+    # in failing task launches; even failed CloudFormation deployments. By adding these
+    # dependencies here we give greater time for the record to propegate. This issue really only
+    # occurs on first deployment since mount targets probably aren't changing often if at all.
+    DependsOn:
+      - NexusMountTarget0
+      - NexusMountTarget1
+      - NexusMountTarget2
     Properties:
       RuntimePlatform:
         CpuArchitecture: X86_64
@@ -96,6 +159,14 @@ Resources:
         - FARGATE
       ExecutionRoleArn: !Ref ClusterTaskIamRoleArn
       TaskRoleArn: !Ref TaskIamRole
+      Volumes:
+        - Name: nexus-data
+          EFSVolumeConfiguration:
+            FilesystemId: !Ref PersistentStorageFs
+            AuthorizationConfig:
+              AccessPointId: !Ref PersistentStorageAccessPoint
+            RootDirectory: /
+            TransitEncryption: ENABLED
       ContainerDefinitions:
         - Name: !Ref Component
           Image: !Sub '${ContainerImage}:${ContainerTag}'
@@ -107,7 +178,9 @@ Resources:
               HardLimit: 65536
           PortMappings:
             - ContainerPort: !Ref ContainerPort
-
+          MountPoints:
+            - SourceVolume: nexus-data
+              ContainerPath: /nexus-data
           #Environment:
           #  - Name: VARIABLE
           #    Value: !Ref Parameter
@@ -148,7 +221,6 @@ Resources:
           Subnets: !Ref VpcSubnets
           AssignPublicIp: ENABLED   # Enabled because this runs in public subnet
       TaskDefinition: !Ref TaskDefinition
-
       LoadBalancers:
         - ContainerName: !Ref Component
           ContainerPort: !Ref ContainerPort

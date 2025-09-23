@@ -30,17 +30,13 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Description: IAM role ARN for task ECS opperations.
 
-
   ClusterAlbListenerArn:
     Type: AWS::SSM::Parameter::Value<String>
     Description: Name of ECS cluster
 
-
   ClusterSecurityGroupId:
     Type: AWS::SSM::Parameter::Value<String>
     Description: ID of cluster security group
-
-
 
   ContainerImage:
     Type: String
@@ -62,12 +58,9 @@ Parameters:
     Type: Number
     Description: How many copies of the service task to run
 
-
   ContainerPort:
     Type: Number
     Description: Port container will listen on
-
-
 
   AlbRulePriority:
     Type: Number
@@ -82,7 +75,6 @@ Parameters:
   VpcId:
     Type: AWS::SSM::Parameter::Value<String>
     Description: Account VPC ID
-
 
   VpcSubnets:
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
@@ -157,7 +149,6 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref AlbTargetGroup
       HealthCheckGracePeriodSeconds: 60
-
 
 
   AlbTargetGroup:

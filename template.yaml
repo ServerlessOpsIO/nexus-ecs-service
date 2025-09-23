@@ -85,6 +85,19 @@ Parameters:
     Description: Nexus admin password
     NoEcho: true
 
+  PgUser:
+    Type: String
+    Description: Postgres user
+
+  PgPasswd:
+    Type: String
+    Description: Postgres password
+    NoEcho: true
+
+  PgEndpoint:
+    Type: String
+    Description: Postgres endpoint (<HOSTNAME>:<PORT>)
+
 Resources:
   PersistentStorageFs:
     Type: AWS::EFS::FileSystem
@@ -186,8 +199,14 @@ Resources:
             - SourceVolume: nexus-data
               ContainerPath: /nexus-data
           Environment:
-            - Name: NEXUS_SECURITY_INITIAL_PASSWORD
-              Value: !Ref NexusAdminPassword
+            - Name: NEXUS_DATASTORE_NEXUS_JDBCURL
+              Value: !Sub 'jdbc:postgresql://${PgEndpoint}/nexus'
+            - Name: PG_ENDPOINT
+              Value: !Ref PgEndpoint
+            - Name: NEXUS_DATASTORE_NEXUS_USERNAME
+              Value: !Ref PgUser
+            - Name: NEXUS_DATASTORE_NEXUS_PASSWORD
+              Value: !Ref PgPasswd
           DockerLabels:
             com.datadoghq.tags.domain: !Ref Domain
             com.datadoghq.tags.system: !Ref System

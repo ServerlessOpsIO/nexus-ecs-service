@@ -12,8 +12,13 @@
   "ContainerCpu": "2048",
   "ContainerMemory": "8192",
   "ContainerDesiredCount": "1",
-  "ContainerPort": "8081","AlbRulePriority": "1",
+  "ContainerPort": "8081",
+  "AlbRulePriority": "1",
   "AlbRulePath": "*",
   "VpcId": "/org/networking/VpcId",
+  "VpcSubnets": "/org/networking/VpcPublicSubnets",
+  "PgUser": $vars.PG_USER,
+  "PgPasswd": $secrets.PG_PASSWD,
+  "PgEndpoint": $vars.PG_ENDPOINT,
   "NexusAdminPassword": $secrets.NEXUS_ADMIN_PASSWORD
 }

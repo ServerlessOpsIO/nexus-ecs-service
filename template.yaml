@@ -114,6 +114,11 @@ Resources:
           #Environment:
           #  - Name: VARIABLE
           #    Value: !Ref Parameter
+          DockerLabels:
+            com.datadoghq.tags.domain: !Ref Domain
+            com.datadoghq.tags.system: !Ref System
+            com.datadoghq.tags.component: !Ref Component
+            com.datadoghq.tags.code_branch: !Ref CodeBranch
           LogConfiguration:
             LogDriver: awslogs
             Options:

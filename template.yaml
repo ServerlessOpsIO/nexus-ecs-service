@@ -99,7 +99,12 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref Component
           Image: !Sub '${ContainerImage}:${ContainerTag}'
-
+          Ulimits:
+            # NOTE: This is the ECS Fargate default but also the stated recommendation from
+            # sonatype. It's unnecessary but here for clarity.
+            - Name: nofile
+              SoftLimit: 65536
+              HardLimit: 65536
           PortMappings:
             - ContainerPort: !Ref ContainerPort
 

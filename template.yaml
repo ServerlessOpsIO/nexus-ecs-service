@@ -212,8 +212,6 @@ Resources:
           Environment:
             - Name: NEXUS_DATASTORE_NEXUS_JDBCURL
               Value: !Sub 'jdbc:postgresql://${PgHost}:${PgPort}/nexus'
-            - Name: PG_ENDPOINT
-              Value: !Sub "${PgHost}:${PgPort}"
             - Name: NEXUS_DATASTORE_NEXUS_USERNAME
               Value: !Ref PgUser
             - Name: NEXUS_DATASTORE_NEXUS_PASSWORD

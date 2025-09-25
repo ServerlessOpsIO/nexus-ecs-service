@@ -94,9 +94,18 @@ Parameters:
     Description: Postgres password
     NoEcho: true
 
-  PgEndpoint:
+  PgHost:
     Type: String
-    Description: Postgres endpoint (<HOSTNAME>:<PORT>)
+    Description: Postgres hostname
+
+  PgPort:
+    Type: Number
+    Description: Postgres port
+    Default: 5432
+
+  RdsSecurityGroupId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: Security group ID for RDS access
 
 Resources:
   PersistentStorageFs:
@@ -156,14 +165,16 @@ Resources:
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    # NOTE: This exists because propegating DNS entires for EFS mounts can be slow and result
-    # in failing task launches; even failed CloudFormation deployments. By adding these
-    # dependencies here we give greater time for the record to propegate. This issue really only
-    # occurs on first deployment since mount targets probably aren't changing often if at all.
+    # NOTE: NexusMountTarget depends exists because propegating DNS entires for EFS mounts can
+    # be slow and result in failing task launches; even failed CloudFormation deployments. By
+    # adding these dependencies here we give greater time for the record to propegate. This
+    # issue really only occurs on first deployment since mount targets probably aren't changing
+    # often if at all.
     DependsOn:
       - NexusMountTarget0
       - NexusMountTarget1
       - NexusMountTarget2
+      - RdsSgIngressRule
     Properties:
       RuntimePlatform:
         CpuArchitecture: X86_64
@@ -200,9 +211,9 @@ Resources:
               ContainerPath: /nexus-data
           Environment:
             - Name: NEXUS_DATASTORE_NEXUS_JDBCURL
-              Value: !Sub 'jdbc:postgresql://${PgEndpoint}/nexus'
+              Value: !Sub 'jdbc:postgresql://${PgHost}:${PgPort}/nexus'
             - Name: PG_ENDPOINT
-              Value: !Ref PgEndpoint
+              Value: !Sub "${PgHost}:${PgPort}"
             - Name: NEXUS_DATASTORE_NEXUS_USERNAME
               Value: !Ref PgUser
             - Name: NEXUS_DATASTORE_NEXUS_PASSWORD
@@ -278,6 +289,15 @@ Resources:
       ListenerArn: !Ref ClusterAlbListenerArn
       Priority: !Ref AlbRulePriority
 
+
+  RdsSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: !Ref PgPort
+      ToPort: !Ref PgPort
+      SourceSecurityGroupId: !Ref ClusterSecurityGroupId
 
   TaskIamRole:
     Type: AWS::IAM::Role

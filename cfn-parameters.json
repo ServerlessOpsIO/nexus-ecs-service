@@ -19,6 +19,7 @@
   "VpcSubnets": "/org/networking/VpcPublicSubnets",
   "PgUser": $vars.PG_USER,
   "PgPasswd": $secrets.PG_PASSWD,
-  "PgEndpoint": $vars.PG_ENDPOINT,
+  "PgHost": $vars.PG_HOST,
+  "RdsSecurityGroupId": "/development/versant/nexus-db/main/RdsSecurityGroupId",
   "NexusAdminPassword": $secrets.NEXUS_ADMIN_PASSWORD
 }

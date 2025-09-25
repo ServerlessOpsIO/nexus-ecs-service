@@ -80,11 +80,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: Account subnets
 
-  NexusAdminPassword:
-    Type: String
-    Description: Nexus admin password
-    NoEcho: true
-
   PgUser:
     Type: String
     Description: Postgres user
@@ -108,6 +103,18 @@ Parameters:
     Description: Security group ID for RDS access
 
 Resources:
+  NexusAdminPassword:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: RDS Admin Password
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "admin"}'
+        GenerateStringKey: 'password'
+        PasswordLength: 64
+        ExcludePunctuation: true
+
   PersistentStorageFs:
     Type: AWS::EFS::FileSystem
     DeletionPolicy: RetainExceptOnCreate
@@ -216,6 +223,9 @@ Resources:
               Value: !Ref PgUser
             - Name: NEXUS_DATASTORE_NEXUS_PASSWORD
               Value: !Ref PgPasswd
+          Secrets:
+            - Name: NEXUS_SECURITY_INITIAL_PASSWORD
+              ValueFrom: !Sub "${NexusAdminPassword}:password::"
           DockerLabels:
             com.datadoghq.tags.domain: !Ref Domain
             com.datadoghq.tags.system: !Ref System

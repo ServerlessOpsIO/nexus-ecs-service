@@ -21,6 +21,5 @@
   "PgPasswd": $secrets.PG_PASSWD,
   "PgHost": "nexus-db-main-rdsdbcluster-4pglcog8hvmb.cluster-c8lik4owiq36.us-east-1.rds.amazonaws.com",
   "PgPort": 5432,
-  "RdsSecurityGroupId": "/development/versant/nexus-db/main/RdsSecurityGroupId",
-  "NexusAdminPassword": $secrets.NEXUS_ADMIN_PASSWORD
+  "RdsSecurityGroupId": "/development/versant/nexus-db/main/RdsSecurityGroupId"
 }

@@ -17,9 +17,10 @@
   "AlbRulePath": "*",
   "VpcId": "/org/networking/VpcId",
   "VpcSubnets": "/org/networking/VpcPublicSubnets",
-  "PgUser": $vars.PG_USER,
+  "PgUser": "postgres",
   "PgPasswd": $secrets.PG_PASSWD,
-  "PgHost": $vars.PG_HOST,
+  "PgHost": "nexus-db-main-rdsdbinstance-cxz4mszc9r36.c8lik4owiq36.us-east-1.rds.amazonaws.com",
+  "PgPort": 5432,
   "RdsSecurityGroupId": "/development/versant/nexus-db/main/RdsSecurityGroupId",
   "NexusAdminPassword": $secrets.NEXUS_ADMIN_PASSWORD
 }

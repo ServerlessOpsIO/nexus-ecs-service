@@ -18,7 +18,7 @@
   "VpcSubnets": "/org/networking/VpcPublicSubnets",
   "PgUser": "postgres",
   "PgPasswd": $secrets.PG_PASSWD,
-  "PgHost": "nexus-db-main-rdsdbcluster-fcmqx9mcungu.cluster-c8lik4owiq36.us-east-1.rds.amazonaws.com",
+  "PgHost": "nexus-db-main-rdsdbcluster-9gcvjbtb0mks.cluster-c8lik4owiq36.us-east-1.rds.amazonaws.com",
   "PgPort": 5432,
   "RdsSecurityGroupId": "/development/versant/nexus-db/main/RdsSecurityGroupId"
 }

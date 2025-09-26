@@ -99,6 +99,7 @@ Parameters:
     Description: Security group ID for RDS access
 
 Resources:
+  # Password
   NexusAdminPassword:
     Type: AWS::SecretsManager::Secret
     DeletionPolicy: RetainExceptOnCreate
@@ -111,6 +112,7 @@ Resources:
         PasswordLength: 64
         ExcludePunctuation: true
 
+  # Persistent Storage / EFS
   PersistentStorageFs:
     Type: AWS::EFS::FileSystem
     DeletionPolicy: RetainExceptOnCreate
@@ -166,6 +168,21 @@ Resources:
       ToPort: 2049
       SourceSecurityGroupId: !Ref ClusterSecurityGroupId
 
+
+  # Artifact blob store
+  ArtifactBlobStore:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub 'nexus-artifact-blob-store-${AWS::AccountId}-${AWS::Region}-${CodeBranch}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/aws/s3
+
+  # Ecs Task & Service
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     # NOTE: NexusMountTarget depends exists because propegating DNS entires for EFS mounts can
@@ -226,6 +243,16 @@ Resources:
               Value: |
                 maximumPoolSize=200
                 maxLifetime=900000
+            - Name: NEXUS_BLOB_STORE_OVERRIDE
+              Value: !Sub |
+                {
+                  "blob-store-name": {
+                    "s3": {
+                      "bucket": "${ArtifactBlobStore}",
+                      "region": "${AWS::Region}"
+                    }
+                  }
+                }
           Secrets:
             - Name: NEXUS_SECURITY_INITIAL_PASSWORD
               ValueFrom: !Sub "${NexusAdminPassword}:password::"
@@ -345,6 +372,23 @@ Resources:
                 Action:
                   - 'secretsmanager:GetSecretValue'
                 Resource: !Ref NexusAdminPassword
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:DeleteObject"
+                  - "s3:ListBucket"
+                  - "s3:GetLifecycleConfiguration"
+                  - "s3:PutLifecycleConfiguration"
+                  - "s3:GetObjectTagging"
+                  - "s3:PutObjectTagging"
+                  - "s3:DeleteObjectTagging"
+                  - "s3:GetBucketPolicy"
+                  - "s3:GetBucketAcl"
+                Resource:
+                  - !GetAtt ArtifactBlobStore.Arn
+                  - !Sub '${ArtifactBlobStore.Arn}/*'
+
 
 
   # Governs permissions of running task container.

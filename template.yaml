@@ -213,12 +213,19 @@ Resources:
             - SourceVolume: nexus-data
               ContainerPath: /nexus-data
           Environment:
+            # ref. https://help.sonatype.com/en/install-nexus-repository-with-postgresql.html
             - Name: NEXUS_DATASTORE_NEXUS_JDBCURL
-              Value: !Sub 'jdbc:postgresql://${PgHost}:${PgPort}/nexus'
+              Value: !Sub 'jdbc:postgresql://${PgHost}:${PgPort}/nexus?tcpKeepAlive=true&loginTimeout=5&connectionTimeout=5&socketTimeout=30&cancelSignalTimeout=5&targetServerType=primary'
             - Name: NEXUS_DATASTORE_NEXUS_USERNAME
               Value: !Ref PgUser
             - Name: NEXUS_DATASTORE_NEXUS_PASSWORD
               Value: !Ref PgPasswd
+            # Max life is 15 minutes PGSQL has no max connection lifestime but not sure if ECS
+            # has one.
+            - Name: NEXUS_DATASTORE_NEXUS_ADVANCED
+              Value: |
+                maximumPoolSize=200
+                maxLifetime=900000
           Secrets:
             - Name: NEXUS_SECURITY_INITIAL_PASSWORD
               ValueFrom: !Sub "${NexusAdminPassword}:password::"

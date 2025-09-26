@@ -108,7 +108,7 @@ Resources:
     DeletionPolicy: RetainExceptOnCreate
     UpdateReplacePolicy: Retain
     Properties:
-      Description: RDS Admin Password
+      Description: Nexus Admin Password
       GenerateSecretString:
         SecretStringTemplate: !Sub '{"username": "admin"}'
         GenerateStringKey: 'password'

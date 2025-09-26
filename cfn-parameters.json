@@ -4,7 +4,6 @@
   "Component": $env.GITHUB_REPOSITORY_NAME_PART_SLUG_CS,
   "CodeBranch": $env.GITHUB_REF_SLUG_CS,
   "ClusterName": "/development/versant/nexus-ecs-cluster/main/EcsClusterName",
-  "ClusterTaskIamRoleArn": "/development/versant/nexus-ecs-cluster/main/EcsTaskExecutionIamRoleArn",
   "ClusterSecurityGroupId": "/development/versant/nexus-ecs-cluster/main/ContainerSecurityGroupId",
   "ClusterAlbListenerArn": "/development/versant/nexus-ecs-cluster/main/EcsAlbListenerArn",
   "ContainerImage": "sonatype/nexus3",
